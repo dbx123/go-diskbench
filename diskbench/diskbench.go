@@ -8,15 +8,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/dbx123/go-logger/logger"
 	"github.com/dbx123/go-progress/progress"
 	"github.com/dbx123/go-utils/fileutils"
 	"github.com/dbx123/go-utils/timeutils"
 )
 
 const (
-	SecondsToRun      = 5
 	DiskBenchNumLines = 10000
+	FolderName        = "bench"
 )
 
 var (
@@ -28,13 +27,20 @@ type DiskBenchResult struct {
 	Path      string
 	NumLines  int
 	Writes    int
+	JobName   string
+	Duration  time.Duration
+}
+
+type DiskBench struct {
+	Folder  string
+	Seconds int
 }
 
 func (r DiskBenchResult) String() string {
 	return fmt.Sprintf("\t\t\t"+"Performed: %v"+"\n"+
 		"\t\t\t"+"Path: %v"+"\n"+
 		"\t\t\t"+"NumLines: %v"+"\n"+
-		"\t\t\t"+"SequentialWrites: %v",
+		"\t\t\t"+"Writes: %v",
 		r.Performed,
 		r.Path,
 		r.NumLines,
@@ -42,60 +48,56 @@ func (r DiskBenchResult) String() string {
 	)
 }
 
-func BenchDisk(folder string) DiskBenchResult {
+func BenchDisk(d DiskBench) (DiskBenchResult, error) {
 
 	var jobName string = "Benchmarking Disk"
-
-	var start time.Time = time.Now()
 	var took time.Duration
 	var absPath string
 
-	absPath, err := filepath.Abs(folder)
-	if err != nil {
-		panic(err)
+	if d.Seconds < 1 {
+		return DiskBenchResult{}, fmt.Errorf("seconds cannot be less than 1 [%v]", d.Seconds)
 	}
 
-	logger.Log(
-		logger.LVL_APP,
-		fmt.Sprintf("%v [path: %v]\n", jobName, absPath),
-	)
+	var targetFolder string = fmt.Sprintf("%v/%v", d.Folder, FolderName)
 
-	outFolder := fmt.Sprintf("%s/bench", folder)
+	if !fileutils.FolderExists(targetFolder) {
+		err := fileutils.MkDir(targetFolder)
+		if err != nil {
+			return DiskBenchResult{}, fmt.Errorf("unable to create folder %v", targetFolder)
+		}
+	}
 
-	fileutils.EmptyFolder(outFolder)
-	tSeq := sequential(outFolder)
+	absPath, err := filepath.Abs(targetFolder)
+	if err != nil {
+		return DiskBenchResult{}, err
+	}
 
-	took = timeutils.Took(start)
-	logger.Log(
-		logger.LVL_DEBUG,
-		fmt.Sprintf("Done %v [%v]\n", jobName, took),
-	)
+	tSeq, took := sequential(d)
+
+	// brutally remove the target folder
+	os.Remove(targetFolder)
 
 	return DiskBenchResult{
 		Performed: true,
 		Path:      absPath,
 		NumLines:  DiskBenchNumLines,
 		Writes:    tSeq,
-	}
+		JobName:   jobName,
+		Duration:  took,
+	}, nil
 }
 
-func sequential(outFolder string) int {
+func sequential(bench DiskBench) (int, time.Duration) {
 
 	var jobName string = "Sequential Writes"
 
 	start = time.Now()
 	var took time.Duration
-	var magnitude int = SecondsToRun
-	var duration time.Duration = time.Second * SecondsToRun
+	var duration time.Duration = time.Second * time.Duration(bench.Seconds)
 	var filesWritten int
 
-	logger.Log(
-		logger.LVL_APP,
-		fmt.Sprintf("%v [seconds: %v]\n", jobName, magnitude),
-	)
-
 	var taskNames []string
-	for i := 1; i <= SecondsToRun; i++ {
+	for i := 1; i <= int(bench.Seconds); i++ {
 		taskNames = append(taskNames, strconv.Itoa(i))
 	}
 
@@ -114,9 +116,9 @@ func sequential(outFolder string) int {
 
 		elapsed := time.Since(start)
 
-		f := fmt.Sprintf("%v/%v.txt", outFolder, filesWritten)
+		f := fmt.Sprintf("%v/%v.txt", bench.Folder, filesWritten)
 		d := fileutils.GetFile(f)
-		err := writeLines(d)
+		err := writeLines(d, duration)
 		if err != nil {
 			d.Close()
 			condition = false
@@ -125,7 +127,7 @@ func sequential(outFolder string) int {
 		filesWritten++
 
 		sPassed := int(elapsed.Seconds())
-		for i := 1; i < SecondsToRun; i++ {
+		for i := 1; i < int(duration.Seconds()); i++ {
 			if sPassed >= i {
 				task, _ := job.GetTask(strconv.Itoa(i))
 				if task.StartTime == nil {
@@ -142,21 +144,18 @@ func sequential(outFolder string) int {
 		}
 		job.UpdateBar()
 	}
-	nTask, _ := job.GetTask(strconv.Itoa(SecondsToRun))
+
+	nTask, _ := job.GetTask(strconv.Itoa(bench.Seconds))
 	if nTask.Took == nil {
 		nTask.End()
 	}
 
 	took = timeutils.Took(start)
-	logger.Log(
-		logger.LVL_DEBUG,
-		fmt.Sprintf("Done %v [%v]\n", jobName, took),
-	)
 
-	return filesWritten
+	return filesWritten, took
 }
 
-func writeLines(f *os.File) error {
+func writeLines(f *os.File, duration time.Duration) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	done := make(chan struct{}, 1)
@@ -181,7 +180,7 @@ func writeLines(f *os.File) error {
 
 	}(f, ctx)
 
-	end := time.Until(start.Add(time.Second * SecondsToRun))
+	end := time.Until(start.Add(duration))
 
 	select {
 	case <-done:
