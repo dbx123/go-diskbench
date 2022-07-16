@@ -1,10 +1,10 @@
 module github.com/dbx123/go-diskbench
 
-go 1.18
+go 1.17
 
 require (
 	github.com/dbx123/go-progress v0.0.0-20220708114615-f358f616f3f9
-	github.com/dbx123/go-utils v0.0.0-20220707185719-3820efa3bba2
+	github.com/dbx123/go-utils v0.0.0-20220716165234-e0eb25147f01
 )
 
 require (

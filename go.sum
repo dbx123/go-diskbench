@@ -4,8 +4,10 @@ github.com/dbx123/go-logger v0.0.0-20220707184500-88a19ec59f74 h1:aVkIoZlHFzGv0d
 github.com/dbx123/go-logger v0.0.0-20220707184500-88a19ec59f74/go.mod h1:356avKYs1Qo0iDqajRcXhCoMErXd03SbS67G/Mp0I5I=
 github.com/dbx123/go-progress v0.0.0-20220708114615-f358f616f3f9 h1:HFAf0d7czEJ11gAM4o4dJhhNdobxlji1jaoogBxo7Do=
 github.com/dbx123/go-progress v0.0.0-20220708114615-f358f616f3f9/go.mod h1:Vo1lpTQc1O0Hdjk/WFI/X1VKUHXzfm9cvX6uEHszj2k=
-github.com/dbx123/go-utils v0.0.0-20220707185719-3820efa3bba2 h1:Dj3ejkc6mEyh5sXGMLDMfGfJEddHfO47JwPGApCL3Uw=
 github.com/dbx123/go-utils v0.0.0-20220707185719-3820efa3bba2/go.mod h1:v+zaYTXXYHMzvCmNZHBy2PgdXQwYhmtdQPU4UQqdylU=
+github.com/dbx123/go-utils v0.0.0-20220716165234-e0eb25147f01 h1:KzkGyd/G3kCxrsIr1AeAfyfEEjD2q9aoAVtX4tTg32o=
+github.com/dbx123/go-utils v0.0.0-20220716165234-e0eb25147f01/go.mod h1:mfi/EP0ywf/qeRDgBWqiAHIqkwL/0tDoqCzGWkkpO+w=
+github.com/dbx123/shapefile v0.0.0-20220707185108-7bad2f0ae717/go.mod h1:ygCdPQ4uSTcDi59I/kcblD05/0dYey4NVovI7MTGoM8=
 github.com/dbx123/uiprogress v0.0.0-20220707194112-b083f3bb3c4e h1:Ftqillf3JCZqt2axTs415hYEIT1UdeqNWzJEmjMltfo=
 github.com/dbx123/uiprogress v0.0.0-20220707194112-b083f3bb3c4e/go.mod h1:bpLpjqB4VxYSqigAfaNXHsIcti0ps/lRpdKSYzpPvpM=
 github.com/gosuri/uilive v0.0.4 h1:hUEBpQDj8D8jXgtCdBu7sWsy5sbW/5GhuO8KBwJ2jyY=

@@ -97,7 +97,7 @@ func sequential(bench DiskBench) (int, time.Duration) {
 	var filesWritten int
 
 	var taskNames []string
-	for i := 1; i <= int(bench.Seconds); i++ {
+	for i := 1; i <= bench.Seconds; i++ {
 		taskNames = append(taskNames, strconv.Itoa(i))
 	}
 
@@ -108,7 +108,7 @@ func sequential(bench DiskBench) (int, time.Duration) {
 	)
 	defer job.End(true)
 
-	var condition bool = true
+	var condition bool
 
 	for ok := true; ok; ok = condition {
 
@@ -117,7 +117,7 @@ func sequential(bench DiskBench) (int, time.Duration) {
 		elapsed := time.Since(start)
 
 		f := fmt.Sprintf("%v/%v.txt", bench.Folder, filesWritten)
-		d := fileutils.GetFile(f)
+		d, _ := fileutils.GetFile(f)
 		err := writeLines(d, duration)
 		if err != nil {
 			d.Close()
