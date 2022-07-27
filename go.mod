@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/dbx123/go-progress v0.0.0-20220716221019-e3ba27c74e6c
-	github.com/dbx123/go-utils v0.0.0-20220716165234-e0eb25147f01
+	github.com/dbx123/go-utils v0.0.0-20220723193040-72b947ae4903
 )
 
 require (
